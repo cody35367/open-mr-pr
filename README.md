@@ -95,5 +95,5 @@ npm notice
 # Package and Install
 ```bash
 npx --package @vscode/vsce -- vsce package
-code --install-extension open-mr-pr-1.0.0.vsix
+code --install-extension open-mr-pr-0.0.1.vsix
 ```
