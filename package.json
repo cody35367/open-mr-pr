@@ -1,7 +1,7 @@
 {
   "name": "open-mr-pr",
   "displayName": "open-mr-pr",
-  "description": "This is a vscode extension that provides buttons in the default source control view for opening gitlab and github PRs quickly.",
+  "description": "This is a vscode extension that provides buttons in the default source control view for opening gitlab and github MR/PRs quickly.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.140.0"

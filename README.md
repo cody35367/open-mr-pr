@@ -1,6 +1,6 @@
 # Open MR PR
 
-This is a vscode extension that provides buttons in the default source control view for opening gitlab and github PRs quickly.
+This is a vscode extension that provides buttons in the default source control view for opening gitlab and github MR/PRs quickly.
 
 # Install Node
 
