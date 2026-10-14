@@ -1,36 +1,70 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
-
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+const { parseRemoteUrl, buildMrPrUrl } = require('./src/git-provider-url');
+const { getGitAPI } = require('./src/git-api');
+const {
+	pickRemote,
+	getRemoteUrl,
+	getCurrentBranchName,
+	findRepositoryByRootUri
+} = require('./src/repository-resolver');
 
 /**
- * @param {vscode.ExtensionContext} context
+ * @param {vscode.SourceControl} sourceControl
  */
+async function openMrPr(sourceControl) {
+	const rootUri = sourceControl && sourceControl.rootUri;
+	if (!rootUri) {
+		vscode.window.showErrorMessage('open-mr-pr: Could not determine which repository to use.');
+		return;
+	}
+
+	let git;
+	try {
+		git = getGitAPI(vscode.extensions);
+	} catch (/** @type {any} */ error) {
+		vscode.window.showErrorMessage(`open-mr-pr: ${error.message}`);
+		return;
+	}
+
+	const repository = findRepositoryByRootUri(git.repositories, rootUri);
+	if (!repository) {
+		vscode.window.showErrorMessage('open-mr-pr: Could not find a matching git repository.');
+		return;
+	}
+
+	const branchName = getCurrentBranchName(repository.state.HEAD);
+	if (!branchName) {
+		vscode.window.showErrorMessage('open-mr-pr: No branch is checked out (detached HEAD).');
+		return;
+	}
+
+	const remote = pickRemote(repository.state.remotes);
+	const remoteUrl = getRemoteUrl(remote);
+	if (!remoteUrl) {
+		vscode.window.showErrorMessage('open-mr-pr: No git remote is configured for this repository.');
+		return;
+	}
+
+	let parsed;
+	try {
+		parsed = parseRemoteUrl(remoteUrl);
+	} catch (/** @type {any} */ error) {
+		vscode.window.showErrorMessage(`open-mr-pr: ${error.message}`);
+		return;
+	}
+
+	const url = buildMrPrUrl(parsed, branchName);
+	await vscode.env.openExternal(vscode.Uri.parse(url));
+}
+
 function activate(context) {
-
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "open-mr-pr" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('open-mr-pr.helloWorld', function () {
-		// The code you place here will be executed every time your command is executed
-
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from open-mr-pr!');
-	});
-
+	const disposable = vscode.commands.registerCommand('open-mr-pr.openMrPr', openMrPr);
 	context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
 function deactivate() {}
 
 module.exports = {
 	activate,
 	deactivate
-}
+};

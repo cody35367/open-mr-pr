@@ -12,10 +12,22 @@
   "activationEvents": [],
   "main": "./extension.js",
   "contributes": {
-    "commands": [{
-      "command": "open-mr-pr.helloWorld",
-      "title": "Hello World"
-    }]
+    "commands": [
+      {
+        "command": "open-mr-pr.openMrPr",
+        "title": "Open MR/PR",
+        "icon": "$(link-external)"
+      }
+    ],
+    "menus": {
+      "scm/title": [
+        {
+          "command": "open-mr-pr.openMrPr",
+          "group": "navigation",
+          "when": "scmProvider == git"
+        }
+      ]
+    }
   },
   "scripts": {
     "lint": "eslint .",
@@ -23,12 +35,13 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.140.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "24.x",
-    "eslint": "^10.5.0",
+    "@types/vscode": "^1.140.0",
     "@vscode/test-cli": "^0.0.15",
-    "@vscode/test-electron": "^3.0.0"
+    "@vscode/test-electron": "^3.0.0",
+    "eslint": "^10.5.0",
+    "globals": "^17.13.0"
   },
   "overrides": {
     "diff": "^8.0.4",
